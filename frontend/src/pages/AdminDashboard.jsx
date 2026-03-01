@@ -1,0 +1,55 @@
+import { useEffect, useState } from 'react'
+import Layout from '../components/Layout'
+import DocumentForm from '../components/DocumentForm'
+import { createDocumentApi, deleteDocumentApi, listDocumentsApi, updateDocumentApi } from '../api/documents'
+
+const AdminDashboard = () => {
+  const [documents, setDocuments] = useState([])
+  const [editing, setEditing] = useState(null)
+
+  const loadDocuments = async () => {
+    const data = await listDocumentsApi()
+    setDocuments(data)
+  }
+
+  useEffect(() => {
+    loadDocuments()
+  }, [])
+
+  const handleSubmit = async (payload) => {
+    if (editing) {
+      await updateDocumentApi(editing.id, payload)
+      setEditing(null)
+    } else {
+      await createDocumentApi(payload)
+    }
+    await loadDocuments()
+  }
+
+  const handleDelete = async (id) => {
+    await deleteDocumentApi(id)
+    await loadDocuments()
+  }
+
+  return (
+    <Layout title="Admin Dashboard">
+      <DocumentForm initialValues={editing} onSubmit={handleSubmit} onCancel={() => setEditing(null)} />
+      <div className="list">
+        {documents.map((doc) => (
+          <div key={doc.id} className="card">
+            <h3>{doc.title}</h3>
+            <p>{doc.description}</p>
+            <small>{doc.summary}</small>
+            <p>Owner ID: {doc.created_by}</p>
+            <div className="actions">
+              <button onClick={() => setEditing(doc)}>Edit</button>
+              <button onClick={() => handleDelete(doc.id)}>Delete</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Layout>
+  )
+}
+
+export default AdminDashboard
