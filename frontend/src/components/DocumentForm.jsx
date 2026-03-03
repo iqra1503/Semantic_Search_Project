@@ -16,28 +16,32 @@ const DocumentForm = ({ initialValues, onSubmit, onCancel }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="card form-grid">
+    <form onSubmit={handleSubmit} className="panel form-stack">
+      <h2>{initialValues ? 'Update document' : 'Create document'}</h2>
       <input
+        className="field-input"
         placeholder="Title"
         value={form.title}
         onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
         required
       />
       <textarea
+        className="field-input"
         placeholder="Description"
         value={form.description}
         onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
         required
       />
       <textarea
+        className="field-input"
         placeholder="Summary"
         value={form.summary}
         onChange={(e) => setForm((prev) => ({ ...prev, summary: e.target.value }))}
         required
       />
-      <div className="actions">
-        <button type="submit">Save</button>
-        {onCancel && <button type="button" onClick={onCancel}>Cancel</button>}
+      <div className="row-actions">
+        <button className="primary-button" type="submit">Save</button>
+        {onCancel && <button className="secondary-button" type="button" onClick={onCancel}>Cancel</button>}
       </div>
     </form>
   )

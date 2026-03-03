@@ -1,8 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
+import RegistrationPage from './pages/RegistrationPage'
 import AdminDashboard from './pages/AdminDashboard'
 import UserDashboard from './pages/UserDashboard'
-import UserManagementPage from './pages/UserManagementPage'
 import { RoleRoute } from './routes/RoleRoute'
 import { useAuth } from './context/AuthContext'
 
@@ -12,19 +12,12 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegistrationPage />} />
       <Route
         path="/admin"
         element={
           <RoleRoute allowedRoles={['admin']}>
             <AdminDashboard />
-          </RoleRoute>
-        }
-      />
-      <Route
-        path="/admin/users"
-        element={
-          <RoleRoute allowedRoles={['admin']}>
-            <UserManagementPage />
           </RoleRoute>
         }
       />
