@@ -1,20 +1,26 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const Layout = ({ title, children }) => {
+const Layout = ({ title, subtitle, children }) => {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   return (
-    <div className="container">
-      <header className="header">
+    <div className="page-shell">
+      <header className="topbar">
         <div>
+          <p className="eyebrow">{subtitle || 'Workspace'}</p>
           <h1>{title}</h1>
-          <p>{user?.name} ({user?.role})</p>
+          <p className="muted-text">{user?.name} ({user?.role})</p>
         </div>
-        <nav className="nav">
-          {user?.role === 'admin' ? <Link to="/admin">Documents</Link> : <Link to="/dashboard">Documents</Link>}
-          {user?.role === 'admin' && <Link to="/admin/users">Users</Link>}
-          <button onClick={logout}>Logout</button>
+        <nav className="nav-actions">
+          {user?.role === 'user' && <Link to="/dashboard" className="secondary-button">My Documents</Link>}
+          <button onClick={handleLogout} className="primary-button">Logout</button>
         </nav>
       </header>
       {children}

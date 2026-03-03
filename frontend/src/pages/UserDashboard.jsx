@@ -32,17 +32,17 @@ const UserDashboard = () => {
   }
 
   return (
-    <Layout title="User Dashboard">
+    <Layout title="User Dashboard" subtitle="Document Manager">
       <DocumentForm initialValues={editing} onSubmit={handleSubmit} onCancel={() => setEditing(null)} />
-      <div className="list">
+      <div className="user-grid">
         {documents.map((doc) => (
-          <div key={doc.id} className="card">
+          <div key={doc.id} className="user-card">
             <h3>{doc.title}</h3>
             <p>{doc.description}</p>
-            <small>{doc.summary}</small>
-            <div className="actions">
-              <button onClick={() => setEditing(doc)}>Edit</button>
-              <button onClick={() => handleDelete(doc.id)}>Delete</button>
+            <small className="muted-text">{doc.summary}</small>
+            <div className="row-actions">
+              <button className="secondary-button" onClick={() => setEditing(doc)}>Edit</button>
+              <button className="danger-button" onClick={() => handleDelete(doc.id)}>Delete</button>
             </div>
           </div>
         ))}

@@ -1,53 +1,43 @@
 import { useEffect, useState } from 'react'
 import Layout from '../components/Layout'
-import DocumentForm from '../components/DocumentForm'
-import { createDocumentApi, deleteDocumentApi, listDocumentsApi, updateDocumentApi } from '../api/documents'
+import { listUsersApi } from '../api/users'
 
 const AdminDashboard = () => {
-  const [documents, setDocuments] = useState([])
-  const [editing, setEditing] = useState(null)
+  const [users, setUsers] = useState([])
+  const [error, setError] = useState('')
 
-  const loadDocuments = async () => {
-    const data = await listDocumentsApi()
-    setDocuments(data)
+  const loadUsers = async () => {
+    setError('')
+    try {
+      const data = await listUsersApi()
+      setUsers(data)
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Unable to load users')
+    }
   }
 
   useEffect(() => {
-    loadDocuments()
+    loadUsers()
   }, [])
 
-  const handleSubmit = async (payload) => {
-    if (editing) {
-      await updateDocumentApi(editing.id, payload)
-      setEditing(null)
-    } else {
-      await createDocumentApi(payload)
-    }
-    await loadDocuments()
-  }
-
-  const handleDelete = async (id) => {
-    await deleteDocumentApi(id)
-    await loadDocuments()
-  }
-
   return (
-    <Layout title="Admin Dashboard">
-      <DocumentForm initialValues={editing} onSubmit={handleSubmit} onCancel={() => setEditing(null)} />
-      <div className="list">
-        {documents.map((doc) => (
-          <div key={doc.id} className="card">
-            <h3>{doc.title}</h3>
-            <p>{doc.description}</p>
-            <small>{doc.summary}</small>
-            <p>Owner ID: {doc.created_by}</p>
-            <div className="actions">
-              <button onClick={() => setEditing(doc)}>Edit</button>
-              <button onClick={() => handleDelete(doc.id)}>Delete</button>
-            </div>
-          </div>
-        ))}
-      </div>
+    <Layout title="Admin Dashboard" subtitle="User Directory">
+      {error && <p className="error-banner">{error}</p>}
+      <section className="panel">
+        <div className="panel-header-row">
+          <h2>Registered Users</h2>
+          <button className="secondary-button" onClick={loadUsers}>Refresh</button>
+        </div>
+        <div className="user-grid">
+          {users.map((item) => (
+            <article key={item.id} className="user-card">
+              <h3>{item.name}</h3>
+              <p>{item.email}</p>
+              <span className="role-chip">{item.role}</span>
+            </article>
+          ))}
+        </div>
+      </section>
     </Layout>
   )
 }
