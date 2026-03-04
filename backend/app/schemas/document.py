@@ -21,6 +21,7 @@ class DocumentUpdate(BaseModel):
 
 class DocumentResponse(DocumentBase):
     id: int
+    summary_embedding: str
     created_by: int
     created_at: datetime
     updated_at: datetime
