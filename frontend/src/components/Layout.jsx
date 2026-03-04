@@ -30,7 +30,7 @@ const Layout = ({ title, subtitle, children, sidebarItems = [] }) => {
                 Menu
               </button>
             )}
-            <Link to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/login'} className="text-lg font-semibold">
+            <Link to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/'} className="text-lg font-semibold">
               Document Manager
             </Link>
           </div>
@@ -43,6 +43,7 @@ const Layout = ({ title, subtitle, children, sidebarItems = [] }) => {
               </>
             ) : (
               <>
+                <Link to="/" className={navLinkClass}>Home</Link>
                 <Link to="/login" className={navLinkClass}>Login</Link>
                 <Link to="/register" className={navLinkClass}>Register</Link>
               </>

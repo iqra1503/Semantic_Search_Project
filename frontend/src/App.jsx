@@ -5,16 +5,21 @@ import AdminDashboard from './pages/AdminDashboard'
 import UserDashboard from './pages/UserDashboard'
 import { RoleRoute } from './routes/RoleRoute'
 import { useAuth } from './context/AuthContext'
+import HomePage from './pages/HomePage'
+import PublicDocumentDetailPage from './pages/PublicDocumentDetailPage'
+import DocumentComparisonPage from './pages/DocumentComparisonPage'
 
 function App() {
   const { user } = useAuth()
-  const homePath = user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/login'
+  const dashboardPath = user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/'
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={homePath} replace />} />
-      <Route path="/login" element={user ? <Navigate to={homePath} replace /> : <LoginPage />} />
-      <Route path="/register" element={user ? <Navigate to={homePath} replace /> : <RegistrationPage />} />
+      <Route path="/" element={user ? <Navigate to={dashboardPath} replace /> : <HomePage />} />
+      <Route path="/documents/:documentId" element={<PublicDocumentDetailPage />} />
+      <Route path="/compare/:sourceId/:targetId" element={<DocumentComparisonPage />} />
+      <Route path="/login" element={user ? <Navigate to={dashboardPath} replace /> : <LoginPage />} />
+      <Route path="/register" element={user ? <Navigate to={dashboardPath} replace /> : <RegistrationPage />} />
       <Route
         path="/admin"
         element={
@@ -31,7 +36,7 @@ function App() {
           </RoleRoute>
         }
       />
-      <Route path="*" element={<Navigate to={homePath} replace />} />
+      <Route path="*" element={<Navigate to={dashboardPath} replace />} />
     </Routes>
   )
 }
