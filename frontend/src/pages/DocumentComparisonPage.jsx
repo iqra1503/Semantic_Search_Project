@@ -4,9 +4,9 @@ import Layout from '../components/Layout'
 import { getPublicDocumentApi } from '../api/documents'
 
 const ComparisonCard = ({ label, document }) => (
-  <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+  <article className="h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
     <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{label}</p>
-    <h2 className="mt-2 text-xl font-semibold">{document.title}</h2>
+    <h2 className="mt-2 text-xl font-semibold text-slate-900 dark:text-slate-100">{document.title}</h2>
     <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">By {document.author_name}</p>
     <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">{document.description}</p>
     <p className="mt-4 rounded-xl bg-slate-50 p-3 text-sm text-slate-700 dark:bg-slate-800/70 dark:text-slate-200">{document.summary}</p>
@@ -44,10 +44,14 @@ const DocumentComparisonPage = () => {
         Similarity score: <strong>{score}%</strong>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {sourceDocument && <ComparisonCard label="Selected Document" document={sourceDocument} />}
-        {targetDocument && <ComparisonCard label="Matching Document" document={targetDocument} />}
-      </div>
+      {!sourceDocument && !targetDocument && !error && <p className="text-sm text-slate-500 dark:text-slate-400">Loading comparison...</p>}
+
+      {(sourceDocument || targetDocument) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {sourceDocument && <ComparisonCard label="Selected Document" document={sourceDocument} />}
+          {targetDocument && <ComparisonCard label="Matching Document" document={targetDocument} />}
+        </div>
+      )}
 
       <Link to={`/documents/${sourceId}`} className="mt-5 inline-flex rounded-lg border border-slate-300 px-3 py-2 text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
         Back to selected document
