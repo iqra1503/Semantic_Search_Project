@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -6,6 +8,7 @@ from app.db.database import get_db
 from app.models.document import Document
 from app.models.user import User
 from app.schemas.document import DocumentCreate, DocumentResponse, DocumentUpdate
+from app.services.embeddings import generate_summary_embedding
 
 router = APIRouter(prefix='/documents', tags=['documents'])
 
@@ -24,7 +27,12 @@ def create_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    document = Document(**payload.model_dump(), created_by=current_user.id)
+    summary_embedding = generate_summary_embedding(payload.summary)
+    document = Document(
+        **payload.model_dump(),
+        summary_embedding=json.dumps(summary_embedding),
+        created_by=current_user.id,
+    )
     db.add(document)
     db.commit()
     db.refresh(document)
@@ -57,7 +65,11 @@ def update_document(
     if current_user.role != 'admin' and document.created_by != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized')
 
-    for key, value in payload.model_dump(exclude_unset=True).items():
+    updates = payload.model_dump(exclude_unset=True)
+    if 'summary' in updates:
+        updates['summary_embedding'] = json.dumps(generate_summary_embedding(updates['summary']))
+
+    for key, value in updates.items():
         setattr(document, key, value)
 
     db.commit()
