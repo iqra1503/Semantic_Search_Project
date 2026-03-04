@@ -27,3 +27,14 @@ class DocumentResponse(DocumentBase):
     updated_at: datetime
 
     model_config = {'from_attributes': True}
+
+
+class PublicDocumentResponse(DocumentResponse):
+    author_name: str
+
+
+class SimilarDocumentResponse(BaseModel):
+    id: int
+    title: str
+    author_name: str
+    similarity: float

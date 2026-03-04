@@ -18,3 +18,23 @@ export const updateDocumentApi = async (id, payload) => {
 export const deleteDocumentApi = async (id) => {
   await api.delete(`/documents/${id}`)
 }
+
+export const listPublicDocumentsApi = async () => {
+  const { data } = await api.get('/documents/public')
+  return data
+}
+
+export const getPublicDocumentApi = async (id) => {
+  const { data } = await api.get(`/documents/public/${id}`)
+  return data
+}
+
+export const findSimilarPublicDocumentsApi = async (id, minSimilarity = 0.5) => {
+  const { data } = await api.get(`/documents/public/${id}/similar`, {
+    params: {
+      min_similarity: minSimilarity,
+      limit: 5
+    }
+  })
+  return data
+}
