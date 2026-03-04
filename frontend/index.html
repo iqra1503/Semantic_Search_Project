@@ -1,12 +1,36 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document Management System</title>
+    <title>Document Manager</title>
+    <script>
+      tailwind = {
+        config: {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              boxShadow: {
+                soft: '0 10px 30px rgba(15, 23, 42, 0.08)'
+              },
+              keyframes: {
+                fadeIn: {
+                  '0%': { opacity: 0, transform: 'translateY(8px)' },
+                  '100%': { opacity: 1, transform: 'translateY(0)' }
+                }
+              },
+              animation: {
+                fadeIn: 'fadeIn 0.35s ease-out'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="h-full bg-slate-100 text-slate-900 antialiased transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+    <div id="root" class="min-h-full"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
