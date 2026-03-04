@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthCard from '../components/AuthCard'
 import FormField from '../components/FormField'
+import Layout from '../components/Layout'
 import { useAuth } from '../context/AuthContext'
 
 const LoginPage = () => {
@@ -23,20 +24,24 @@ const LoginPage = () => {
   }
 
   return (
-    <AuthCard
-      title="Welcome back"
-      subtitle="Sign in to continue"
-      error={error}
-      footerText="Need an account?"
-      footerLinkLabel="Register"
-      footerLinkTo="/register"
-    >
-      <form onSubmit={handleSubmit} className="form-stack">
-        <FormField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="name@email.com" required />
-        <FormField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="••••••••" required />
-        <button type="submit" className="primary-button">Sign In</button>
-      </form>
-    </AuthCard>
+    <Layout title="Welcome back" subtitle="Sign in to your workspace">
+      <div className="grid min-h-[60vh] place-items-center">
+        <AuthCard
+          title="Login"
+          subtitle="Access your dashboard"
+          error={error}
+          footerText="Need an account?"
+          footerLinkLabel="Register"
+          footerLinkTo="/register"
+        >
+          <form onSubmit={handleSubmit} className="grid gap-4">
+            <FormField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="you@company.com" required />
+            <FormField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
+            <button type="submit" className="rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-indigo-500 active:scale-[0.98]">Sign in</button>
+          </form>
+        </AuthCard>
+      </div>
+    </Layout>
   )
 }
 

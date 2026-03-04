@@ -8,11 +8,13 @@ import { useAuth } from './context/AuthContext'
 
 function App() {
   const { user } = useAuth()
+  const homePath = user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/login'
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegistrationPage />} />
+      <Route path="/" element={<Navigate to={homePath} replace />} />
+      <Route path="/login" element={user ? <Navigate to={homePath} replace /> : <LoginPage />} />
+      <Route path="/register" element={user ? <Navigate to={homePath} replace /> : <RegistrationPage />} />
       <Route
         path="/admin"
         element={
@@ -29,7 +31,7 @@ function App() {
           </RoleRoute>
         }
       />
-      <Route path="*" element={<Navigate to={user ? (user.role === 'admin' ? '/admin' : '/dashboard') : '/login'} replace />} />
+      <Route path="*" element={<Navigate to={homePath} replace />} />
     </Routes>
   )
 }
