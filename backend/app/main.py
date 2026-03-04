@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from app.db.database import Base, SessionLocal, engine
 from app.models import Document, User
@@ -17,9 +18,24 @@ app.add_middleware(
 )
 
 
+def ensure_summary_embedding_column():
+    if engine.dialect.name != 'sqlite':
+        return
+
+    with engine.begin() as connection:
+        result = connection.execute(text("PRAGMA table_info(documents)"))
+        columns = [row[1] for row in result.fetchall()]
+        if columns and 'summary_embedding' not in columns:
+            connection.execute(text("ALTER TABLE documents ADD COLUMN summary_embedding TEXT"))
+            connection.execute(
+                text("UPDATE documents SET summary_embedding = '[]' WHERE summary_embedding IS NULL")
+            )
+
+
 @app.on_event('startup')
 def startup_event():
     Base.metadata.create_all(bind=engine)
+    ensure_summary_embedding_column()
     db = SessionLocal()
     try:
         admin = db.query(User).filter(User.email == 'admin@example.com').first()
