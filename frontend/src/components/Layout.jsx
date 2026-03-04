@@ -17,6 +17,8 @@ const Layout = ({ title, subtitle, children, sidebarItems = [] }) => {
     navigate('/login')
   }
 
+  const hasSidebar = Boolean(user && sidebarItems.length)
+
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
@@ -58,8 +60,8 @@ const Layout = ({ title, subtitle, children, sidebarItems = [] }) => {
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 sm:px-6 md:grid-cols-[220px,1fr]">
-        {user && (
+      <div className={`mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 sm:px-6 ${hasSidebar ? 'md:grid-cols-[240px,minmax(0,1fr)]' : 'grid-cols-1'}`}>
+        {hasSidebar && (
           <aside className={`${sidebarOpen ? 'block' : 'hidden'} rounded-2xl border border-slate-200 bg-white p-3 shadow-soft md:block dark:border-slate-800 dark:bg-slate-900`}>
             <p className="mb-2 px-2 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">{user.role} panel</p>
             <ul className="space-y-1">
@@ -78,7 +80,7 @@ const Layout = ({ title, subtitle, children, sidebarItems = [] }) => {
           </aside>
         )}
 
-        <main className="animate-fadeIn">
+        <main className={`animate-fadeIn ${hasSidebar ? '' : 'w-full'}`}>
           {(title || subtitle) && (
             <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
               {subtitle && <p className="text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}

@@ -25,7 +25,8 @@ const LoginPage = () => {
 
   return (
     <Layout title="Welcome back" subtitle="Sign in to your workspace">
-      <div className="grid min-h-[60vh] place-items-center">
+      <div className="relative grid min-h-[70vh] place-items-center">
+        <div className="pointer-events-none absolute inset-x-0 top-14 -z-10 mx-auto h-64 max-w-3xl rounded-full bg-indigo-500/10 blur-3xl dark:bg-indigo-400/10" />
         <AuthCard
           title="Login"
           subtitle="Access your dashboard"
