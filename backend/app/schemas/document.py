@@ -6,11 +6,14 @@ from pydantic import BaseModel, Field
 class DocumentBase(BaseModel):
     title: str = Field(min_length=3, max_length=255)
     description: str = Field(min_length=1)
-    summary: str = Field(min_length=1)
 
 
 class DocumentCreate(DocumentBase):
-    pass
+    summary: str | None = Field(default=None, min_length=1)
+
+
+class DocumentCreateWithSummary(DocumentBase):
+    summary: str = Field(min_length=1)
 
 
 class DocumentUpdate(BaseModel):
@@ -19,7 +22,7 @@ class DocumentUpdate(BaseModel):
     summary: str | None = Field(default=None, min_length=1)
 
 
-class DocumentResponse(DocumentBase):
+class DocumentResponse(DocumentCreateWithSummary):
     id: int
     summary_embedding: str
     created_by: int

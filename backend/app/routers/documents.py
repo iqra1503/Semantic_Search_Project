@@ -15,7 +15,7 @@ from app.schemas.document import (
     PublicDocumentResponse,
     SimilarDocumentResponse,
 )
-from app.services.embeddings import generate_summary_embedding
+from app.services.embeddings import generate_summary_embedding, generate_summary_text
 
 router = APIRouter(prefix='/documents', tags=['documents'])
 
@@ -120,9 +120,12 @@ def create_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    summary_embedding = generate_summary_embedding(payload.summary)
+    summary = payload.summary or generate_summary_text(payload.title, payload.description)
+    summary_embedding = generate_summary_embedding(summary)
     document = Document(
-        **payload.model_dump(),
+        title=payload.title,
+        description=payload.description,
+        summary=summary,
         summary_embedding=json.dumps(summary_embedding),
         created_by=current_user.id,
     )
