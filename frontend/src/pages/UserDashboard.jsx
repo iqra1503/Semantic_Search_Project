@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Layout from '../components/Layout'
 import DocumentForm from '../components/DocumentForm'
-import { createDocumentApi, deleteDocumentApi, listDocumentsApi, updateDocumentApi } from '../api/documents'
+import { createDocumentApi, deleteDocumentApi, listDocumentsApi, previewDocumentSummaryApi, updateDocumentApi } from '../api/documents'
 
 const UserDashboard = () => {
   const [documents, setDocuments] = useState([])
@@ -39,7 +39,7 @@ const UserDashboard = () => {
 
   return (
     <Layout title="User Dashboard" subtitle="Manage your own documents" sidebarItems={[{ to: '/dashboard', label: 'My Documents' }]}>
-      <DocumentForm initialValues={editing} onSubmit={handleSubmit} onCancel={() => setEditing(null)} />
+      <DocumentForm initialValues={editing} onSubmit={handleSubmit} onCancel={() => setEditing(null)} onRefreshSummary={previewDocumentSummaryApi} />
       {error && <p className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between">

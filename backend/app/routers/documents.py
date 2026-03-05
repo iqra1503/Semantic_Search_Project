@@ -14,6 +14,8 @@ from app.schemas.document import (
     DocumentUpdate,
     PublicDocumentResponse,
     SimilarDocumentResponse,
+    SummaryPreviewRequest,
+    SummaryPreviewResponse,
 )
 from app.services.embeddings import generate_summary_embedding, generate_summary_text
 
@@ -104,6 +106,16 @@ def get_similar_public_documents(
 
     scored_documents.sort(key=lambda item: item.similarity, reverse=True)
     return scored_documents[:limit]
+
+
+@router.post('/summary-preview', response_model=SummaryPreviewResponse)
+def generate_summary_preview(
+    payload: SummaryPreviewRequest,
+    current_user: User = Depends(get_current_user),
+):
+    del current_user
+    summary = generate_summary_text(payload.title, payload.description)
+    return SummaryPreviewResponse(summary=summary)
 
 
 @router.get('', response_model=list[DocumentResponse])

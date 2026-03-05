@@ -19,6 +19,12 @@ export const deleteDocumentApi = async (id) => {
   await api.delete(`/documents/${id}`)
 }
 
+
+export const previewDocumentSummaryApi = async (payload) => {
+  const { data } = await api.post('/documents/summary-preview', payload)
+  return data
+}
+
 export const listPublicDocumentsApi = async () => {
   const { data } = await api.get('/documents/public')
   return data
