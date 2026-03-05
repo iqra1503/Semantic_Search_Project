@@ -41,3 +41,11 @@ class SimilarDocumentResponse(BaseModel):
     title: str
     author_name: str
     similarity: float
+
+
+class SummaryPreviewRequest(DocumentBase):
+    pass
+
+
+class SummaryPreviewResponse(BaseModel):
+    summary: str = Field(min_length=1)
