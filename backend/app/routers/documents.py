@@ -1,7 +1,8 @@
 import json
 import math
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
@@ -18,6 +19,7 @@ from app.schemas.document import (
     SummaryPreviewResponse,
 )
 from app.services.embeddings import generate_summary_embedding, generate_summary_text
+from app.services.file_parser import extract_text_from_upload
 
 router = APIRouter(prefix='/documents', tags=['documents'])
 
@@ -29,6 +31,9 @@ def _to_public_document_response(document: Document) -> PublicDocumentResponse:
         description=document.description,
         summary=document.summary,
         summary_embedding=document.summary_embedding,
+        source_type=document.source_type,
+        file_name=document.file_name,
+        file_type=document.file_type,
         created_by=document.created_by,
         created_at=document.created_at,
         updated_at=document.updated_at,
@@ -127,20 +132,68 @@ def list_documents(current_user: User = Depends(get_current_user), db: Session =
 
 
 @router.post('', response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
-def create_document(
-    payload: DocumentCreate,
+async def create_document(
+    request: Request,
+    file: UploadFile | None = File(default=None),
+    title: str | None = Form(default=None),
+    description: str | None = Form(default=None),
+    summary: str | None = Form(default=None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    summary = payload.summary or generate_summary_text(payload.title, payload.description)
-    summary_embedding = generate_summary_embedding(summary)
-    document = Document(
-        title=payload.title,
-        description=payload.description,
-        summary=summary,
-        summary_embedding=json.dumps(summary_embedding),
-        created_by=current_user.id,
-    )
+    content_type = request.headers.get('content-type', '')
+
+    if content_type.startswith('multipart/form-data'):
+        cleaned_title = (title or '').strip()
+        cleaned_description = (description or '').strip()
+        cleaned_summary = (summary or '').strip()
+
+        if not cleaned_title:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='Title is required')
+
+        source_type = 'typed'
+        file_name = None
+        file_type = None
+        text_content = cleaned_description
+
+        if file:
+            text_content, file_name, file_type = await extract_text_from_upload(file)
+            source_type = 'uploaded'
+
+        if not text_content:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail='Provide description text or upload a supported file',
+            )
+
+        summary_text = cleaned_summary or generate_summary_text(cleaned_title, text_content)
+
+        document = Document(
+            title=cleaned_title,
+            description=text_content,
+            summary=summary_text,
+            summary_embedding=json.dumps(generate_summary_embedding(summary_text)),
+            source_type=source_type,
+            file_name=file_name,
+            file_type=file_type,
+            created_by=current_user.id,
+        )
+    else:
+        try:
+            payload = DocumentCreate.model_validate(await request.json())
+        except ValidationError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='Invalid JSON payload') from exc
+
+        summary_text = payload.summary or generate_summary_text(payload.title, payload.description)
+        document = Document(
+            title=payload.title,
+            description=payload.description,
+            summary=summary_text,
+            summary_embedding=json.dumps(generate_summary_embedding(summary_text)),
+            source_type='typed',
+            created_by=current_user.id,
+        )
+
     db.add(document)
     db.commit()
     db.refresh(document)
