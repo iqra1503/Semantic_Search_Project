@@ -75,6 +75,7 @@ const AdminDashboard = () => {
                     <h3 className="font-semibold">{doc.title}</h3>
                     <p className="text-sm text-slate-600 dark:text-slate-300">{doc.description}</p>
                     <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Owner: {userMap[doc.created_by]?.name || 'Unknown'} ({userMap[doc.created_by]?.email || `ID ${doc.created_by}`})</p>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Source: <span className="font-medium capitalize">{doc.source_type}</span>{doc.file_name ? ` (${doc.file_name})` : ''}</p>
                   </div>
                   <div className="flex gap-2">
                     <button className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800" onClick={() => setEditing(doc)}>Edit</button>

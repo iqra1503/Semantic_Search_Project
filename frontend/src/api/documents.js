@@ -6,6 +6,23 @@ export const listDocumentsApi = async () => {
 }
 
 export const createDocumentApi = async (payload) => {
+  if (payload.file) {
+    const formData = new FormData()
+    formData.append('title', payload.title)
+    formData.append('description', payload.description || '')
+    if (payload.summary) {
+      formData.append('summary', payload.summary)
+    }
+    formData.append('file', payload.file)
+
+    const { data } = await api.post('/documents', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return data
+  }
+
   const { data } = await api.post('/documents', payload)
   return data
 }

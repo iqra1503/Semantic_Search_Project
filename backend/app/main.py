@@ -32,10 +32,30 @@ def ensure_summary_embedding_column():
             )
 
 
+def ensure_upload_columns():
+    if engine.dialect.name != 'sqlite':
+        return
+
+    with engine.begin() as connection:
+        result = connection.execute(text("PRAGMA table_info(documents)"))
+        columns = [row[1] for row in result.fetchall()]
+
+        if columns and 'source_type' not in columns:
+            connection.execute(text("ALTER TABLE documents ADD COLUMN source_type TEXT DEFAULT 'typed'"))
+            connection.execute(text("UPDATE documents SET source_type = 'typed' WHERE source_type IS NULL"))
+
+        if columns and 'file_name' not in columns:
+            connection.execute(text('ALTER TABLE documents ADD COLUMN file_name TEXT'))
+
+        if columns and 'file_type' not in columns:
+            connection.execute(text('ALTER TABLE documents ADD COLUMN file_type TEXT'))
+
+
 @app.on_event('startup')
 def startup_event():
     Base.metadata.create_all(bind=engine)
     ensure_summary_embedding_column()
+    ensure_upload_columns()
     db = SessionLocal()
     try:
         admin = db.query(User).filter(User.email == 'admin@example.com').first()

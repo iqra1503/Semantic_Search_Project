@@ -25,6 +25,9 @@ class DocumentUpdate(BaseModel):
 class DocumentResponse(DocumentCreateWithSummary):
     id: int
     summary_embedding: str
+    source_type: str
+    file_name: str | None = None
+    file_type: str | None = None
     created_by: int
     created_at: datetime
     updated_at: datetime
