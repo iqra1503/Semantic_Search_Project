@@ -213,9 +213,13 @@ def get_document(document_id: int, current_user: User = Depends(get_current_user
 
 
 @router.put('/{document_id}', response_model=DocumentResponse)
-def update_document(
+async def update_document(
     document_id: int,
-    payload: DocumentUpdate,
+    request: Request,
+    file: UploadFile | None = File(default=None),
+    title: str | None = Form(default=None),
+    description: str | None = Form(default=None),
+    summary: str | None = Form(default=None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -226,7 +230,41 @@ def update_document(
     if current_user.role != 'admin' and document.created_by != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Not authorized')
 
-    updates = payload.model_dump(exclude_unset=True)
+    content_type = request.headers.get('content-type', '')
+
+    if content_type.startswith('multipart/form-data'):
+        updates: dict[str, str] = {}
+
+        if title is not None:
+            cleaned_title = title.strip()
+            if not cleaned_title:
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='Title cannot be empty')
+            updates['title'] = cleaned_title
+
+        if description is not None:
+            updates['description'] = description.strip()
+            updates['source_type'] = 'typed'
+            updates['file_name'] = None
+            updates['file_type'] = None
+
+        if file:
+            text_content, file_name, file_type = await extract_text_from_upload(file)
+            updates['description'] = text_content
+            updates['source_type'] = 'uploaded'
+            updates['file_name'] = file_name
+            updates['file_type'] = file_type
+
+        if summary is not None:
+            cleaned_summary = summary.strip()
+            updates['summary'] = cleaned_summary
+
+    else:
+        try:
+            payload = DocumentUpdate.model_validate(await request.json())
+        except ValidationError as exc:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail='Invalid JSON payload') from exc
+        updates = payload.model_dump(exclude_unset=True)
+
     if 'summary' in updates:
         updates['summary_embedding'] = json.dumps(generate_summary_embedding(updates['summary']))
 
