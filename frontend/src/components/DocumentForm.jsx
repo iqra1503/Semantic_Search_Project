@@ -40,6 +40,7 @@ const DocumentForm = ({ initialValues, onSubmit, onCancel, onRefreshSummary }) =
   }
 
   const handleRefreshSummary = async () => {
+    if (!onRefreshSummary) return
     setSummaryError('')
 
     const sourceDescription = selectedFile ? '' : form.description
@@ -85,23 +86,21 @@ const DocumentForm = ({ initialValues, onSubmit, onCancel, onRefreshSummary }) =
         <input className={inputClass} placeholder="Document title" value={form.title} onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))} required />
         <textarea className={inputClass} rows="3" placeholder="Description" value={form.description} onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))} required={!selectedFile} disabled={!!selectedFile} />
 
-        {!isEditing && (
-          <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200">OR upload a file</p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Supported: .txt, .pdf, .docx</p>
-            <label className="mt-3 inline-flex cursor-pointer rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500">
-              Browse File
-              <input
-                type="file"
-                accept=".txt,.pdf,.docx"
-                className="hidden"
-                onChange={(e) => validateAndSetFile(e.target.files?.[0])}
-              />
-            </label>
-            {selectedFile && <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">Selected: {selectedFile.name}</p>}
-            {fileError && <p className="mt-2 text-xs text-rose-600 dark:text-rose-300">{fileError}</p>}
-          </div>
-        )}
+        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{isEditing ? 'Upload a replacement file' : 'OR upload a file'}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Supported: .txt, .pdf, .docx</p>
+          <label className="mt-3 inline-flex cursor-pointer rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500">
+            Browse File
+            <input
+              type="file"
+              accept=".txt,.pdf,.docx"
+              className="hidden"
+              onChange={(e) => validateAndSetFile(e.target.files?.[0])}
+            />
+          </label>
+          {selectedFile && <p className="mt-2 text-xs text-emerald-600 dark:text-emerald-300">Selected: {selectedFile.name}</p>}
+          {fileError && <p className="mt-2 text-xs text-rose-600 dark:text-rose-300">{fileError}</p>}
+        </div>
 
         <textarea
           className={inputClass}
@@ -116,14 +115,14 @@ const DocumentForm = ({ initialValues, onSubmit, onCancel, onRefreshSummary }) =
             className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:hover:bg-slate-800"
             type="button"
             onClick={handleRefreshSummary}
-            disabled={refreshingSummary || !!selectedFile}
+            disabled={!onRefreshSummary || refreshingSummary || !!selectedFile}
           >
             {refreshingSummary ? 'Refreshing...' : 'Refresh summary'}
           </button>
           <p className="text-xs text-slate-500 dark:text-slate-400">Generate summary from your current title + description without saving.</p>
         </div>
         {summaryError && <p className="text-xs text-rose-600 dark:text-rose-300">{summaryError}</p>}
-        {!isEditing && <p className="text-xs text-slate-500 dark:text-slate-400">You can type a description or upload a supported document file.</p>}
+        <p className="text-xs text-slate-500 dark:text-slate-400">You can type a description or upload a supported document file.</p>
         {form.summary_embedding && (
           <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Vector Embeddings</p>

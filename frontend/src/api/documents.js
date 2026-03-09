@@ -28,6 +28,27 @@ export const createDocumentApi = async (payload) => {
 }
 
 export const updateDocumentApi = async (id, payload) => {
+  if (payload.file) {
+    const formData = new FormData()
+    if (payload.title !== undefined) {
+      formData.append('title', payload.title)
+    }
+    if (payload.description !== undefined) {
+      formData.append('description', payload.description || '')
+    }
+    if (payload.summary !== undefined) {
+      formData.append('summary', payload.summary)
+    }
+    formData.append('file', payload.file)
+
+    const { data } = await api.put(`/documents/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    return data
+  }
+
   const { data } = await api.put(`/documents/${id}`, payload)
   return data
 }
