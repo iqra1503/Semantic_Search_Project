@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { listDocumentsApi, updateDocumentApi, deleteDocumentApi } from '../api/documents'
+import { createDocumentApi, listDocumentsApi, previewDocumentSummaryApi, updateDocumentApi, deleteDocumentApi } from '../api/documents'
 import { listUsersApi } from '../api/users'
 import DocumentForm from '../components/DocumentForm'
 import Layout from '../components/Layout'
@@ -28,9 +28,12 @@ const AdminDashboard = () => {
   }, [])
 
   const handleSubmit = async (payload) => {
-    if (!editing) return
-    await updateDocumentApi(editing.id, payload)
-    setEditing(null)
+    if (editing) {
+      await updateDocumentApi(editing.id, payload)
+      setEditing(null)
+    } else {
+      await createDocumentApi(payload)
+    }
     await loadData()
   }
 
@@ -45,7 +48,7 @@ const AdminDashboard = () => {
       subtitle="User and document oversight"
       sidebarItems={[{ to: '/admin', label: 'Admin Overview' }]}
     >
-      {editing && <DocumentForm initialValues={editing} onSubmit={handleSubmit} onCancel={() => setEditing(null)} />}
+      <DocumentForm initialValues={editing} onSubmit={handleSubmit} onCancel={editing ? () => setEditing(null) : null} onRefreshSummary={previewDocumentSummaryApi} />
       {error && <p className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
 
       <div className="grid gap-4 xl:grid-cols-2">
