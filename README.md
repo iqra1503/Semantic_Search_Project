@@ -40,6 +40,27 @@ For local development with SQLite:
 DATABASE_URL=sqlite:///./document_management.db
 ```
 
+## Backend Environment Variables
+
+The backend reads `.env` from either the repository root or `backend/.env`, so you can update tokens in one place without changing code.
+
+```env
+JWT_SECRET_KEY=change-me
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+DATABASE_URL=sqlite:///./app.db
+
+# Use either one of these tokens
+EMBEDDINGS_API_KEY=
+GITHUB_TOKEN=
+
+EMBEDDINGS_MODEL=text-embedding-3-small
+EMBEDDINGS_BASE_URL=https://models.inference.ai.azure.com
+SUMMARY_MODEL=gpt-4o-mini
+LLM_BASE_URL=https://models.inference.ai.azure.com
+```
+
+`EMBEDDINGS_API_KEY` is preferred when set; otherwise `GITHUB_TOKEN` is used.
+
 ## Frontend Setup
 
 1. Install dependencies:

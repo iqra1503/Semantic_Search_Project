@@ -6,25 +6,26 @@ from fastapi import HTTPException, status
 
 from app.core.config import settings
 
-EMBEDDING_MODEL = 'text-embedding-3-small'
-EMBEDDING_ENDPOINT = 'https://models.inference.ai.azure.com/embeddings'
-SUMMARY_MODEL = 'azure-openai/gpt-4o-mini'
-CHAT_COMPLETIONS_ENDPOINT = 'https://models.inference.ai.azure.com/chat/completions'
+
+EMBEDDING_ENDPOINT = f"{settings.EMBEDDINGS_BASE_URL.rstrip('/')}/embeddings"
+CHAT_COMPLETIONS_ENDPOINT = f"{settings.LLM_BASE_URL.rstrip('/')}/chat/completions"
 
 
-def _require_models_token() -> None:
-    if not settings.GITHUB_MODELS_TOKEN:
+def _require_models_token() -> str:
+    token = settings.api_token
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail='GITHUB_MODELS_TOKEN is not configured',
+            detail='Neither EMBEDDINGS_API_KEY nor GITHUB_TOKEN is configured',
         )
+    return token
 
 
 def generate_summary_text(title: str, description: str) -> str:
-    _require_models_token()
+    token = _require_models_token()
 
     payload = {
-        'model': SUMMARY_MODEL,
+        'model': settings.SUMMARY_MODEL,
         'messages': [
             {
                 'role': 'system',
@@ -49,7 +50,7 @@ def generate_summary_text(title: str, description: str) -> str:
         data=json.dumps(payload).encode('utf-8'),
         headers={
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {settings.GITHUB_MODELS_TOKEN}',
+            'Authorization': f'Bearer {token}',
         },
         method='POST',
     )
@@ -81,15 +82,15 @@ def generate_summary_text(title: str, description: str) -> str:
 
 
 def generate_summary_embedding(summary: str) -> list[float]:
-    _require_models_token()
+    token = _require_models_token()
 
-    payload = json.dumps({'input': summary, 'model': EMBEDDING_MODEL}).encode('utf-8')
+    payload = json.dumps({'input': summary, 'model': settings.EMBEDDINGS_MODEL}).encode('utf-8')
     request = Request(
         EMBEDDING_ENDPOINT,
         data=payload,
         headers={
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {settings.GITHUB_MODELS_TOKEN}',
+            'Authorization': f'Bearer {token}',
         },
         method='POST',
     )
